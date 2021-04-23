@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from config import Config
 from app import schemas
-from app.models import User
+from app.user.models import User
 
 
 def get_db(request: Request):

@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
-from app import models, schemas
+from app import schemas
+from app.post import models
 
 
 def list_users(db: Session, skip: int = 0, limit: int = 100):

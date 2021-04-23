@@ -1,15 +1,17 @@
 from fastapi import FastAPI
+from .user.routers import router as user_router
+from .auth.routers import router as auth_router
+from .home_page.routers import router as home_page_router
+from .post.models import Post
+from .user.models import User
 
-from . import models, schemas
-from .routers import authentications, main, users
-from core.database import engine, SessionLocal
+from core.database import engine, Base
 
+Base.metadata.create_all(bind=engine)
 
-models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Micro Blog")
-from core import middlewares
 
-app.include_router(authentications.router, prefix="/auth", tags=["auth"])
-app.include_router(main.router)
-app.include_router(users.router, prefix="/users", tags=["users"])
+app.include_router(auth_router, prefix="/auth", tags=["auth"])
+app.include_router(home_page_router)
+app.include_router(user_router, prefix="/user", tags=["user"])
