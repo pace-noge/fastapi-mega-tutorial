@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -28,3 +28,37 @@ async def user_list(db: Session = Depends(get_db)):
     """
     users = db.query(UserModel).all()
     return users
+
+
+@router.get("{user_id}/", response_model=UserSchema, status_code=status.HTTP_200_OK)
+async def user_detail(user_id: int, db: Session = Depends(get_db)):
+    """
+    Get User detail
+    :param user_id: int user id
+    :param db: Sqlalachemy db Session
+    :return: User Model
+    """
+    user = db.query(UserModel).filter(UserModel.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+    return user
+
+
+@router.put("{user_id}", response_model=UserSchema, status_code=status.HTTP_202_ACCEPTED)
+async def update_user(user_id: int, user: UserCreate, db: Session = Depends(get_db)):
+    """
+    Update user detail
+    :param user_id: int user id in url parameter
+    :param user: user json
+    :param db:
+    :return:
+    """
+    current_user = db.query(UserModel).filter(UserModel.id == user_id).first()
+    if not current_user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+    current_user.username = user.username
+    current_user.email = user.email
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+    return current_user
