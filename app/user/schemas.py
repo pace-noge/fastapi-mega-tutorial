@@ -27,7 +27,7 @@ class User(UserBase):
     id: int
 
 
-class ResetPassword(BaseModel):
+class ChangePassword(BaseModel):
     """
     Schema for reset password
     """

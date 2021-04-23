@@ -14,4 +14,4 @@ app = FastAPI(title="Micro Blog")
 
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
 app.include_router(home_page_router)
-app.include_router(user_router, prefix="/user", tags=["user"])
+app.include_router(user_router, prefix="/users", tags=["user"])

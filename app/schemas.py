@@ -23,11 +23,3 @@ class PostCreate(BaseModel):
     """
     pass
 
-
-class Token(BaseModel):
-    acces_token: str
-    token_type: str
-
-
-class TokenData(Token):
-    username: Optional[str] = None

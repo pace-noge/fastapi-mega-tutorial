@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from typing import Optional
 from config import Config
-from app import schemas
+from app.auth.schemas import TokenData
 from app.user.models import User
 
 
@@ -17,7 +17,7 @@ def get_db(request: Request):
     return request.state.db
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token/")
 
 
 def generate_access_token(data: dict, expires_delta: Optional[timedelta] = None):
@@ -33,7 +33,7 @@ def generate_access_token(data: dict, expires_delta: Optional[timedelta] = None)
     else:
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, Config.SECRET_KEY, algortihm=Config.ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, Config.SECRET_KEY, algorithm=Config.ALGORITHM)
     return encoded_jwt
 
 
@@ -53,12 +53,12 @@ async def get_current_user(db: Session = Depends(get_db), token: str = Depends(o
         payload = jwt.decode(
             token,
             Config.SECRET_KEY,
-            algorithm=[Config.ALGORITHM]
+            algorithms=[Config.ALGORITHM]
         )
         username: str = payload.get("sub")
         if username is None:
             raise credential_exception
-        token_data = schemas.TokenData(username=username)
+        token_data = TokenData(username=username)
     except JWTError:
         raise credential_exception
     user = db.query(User).filter(User.username == token_data.username)

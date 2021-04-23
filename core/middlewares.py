@@ -2,7 +2,8 @@
 Middleware for our apps that will be intercept the request and response before executed by our own code
 """
 from fastapi import Request, Response
-from app import app, SessionLocal
+from app import app
+from core.database import SessionLocal
 
 
 @app.middleware("http")
