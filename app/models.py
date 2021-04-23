@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from passlib.context import CryptContext
 from core.database import Base
@@ -16,7 +16,7 @@ class User(Base):
     email = Column(String(120), index=True, unique=True)
     password_hash = Column(String(128))
     is_active = Column(Boolean, default=False)
-    posts = relationship('Post', back_populates='owner')
+    posts = relationship('Post', backref='author', lazy='dynamic')
 
     def set_password(self, password):
         self.password_hash = pwd_context.hash(password)
@@ -34,7 +34,7 @@ class Post(Base):
     id = Column(Integer, primary_key=True)
     body = Column(String(140))
     timestamp = Column(DateTime, index=True, default=datetime.utcnow())
-    author = relationship('User', back_populates="posts")
+    author_id = Column(Integer, ForeignKey('users.id'))
 
     def __str__(self):
         return f"<Post {self.body[30:]}>"
