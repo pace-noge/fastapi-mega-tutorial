@@ -16,11 +16,21 @@ def get_db(request: Request):
 @app.get("/")
 @app.get("/index")
 def home_page():
+    """
+    Root Url
+    :return: Dict
+    """
     return {"message": "Hello world"}
 
 
 @app.post("/token", response_model=schemas.Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    """
+    URL for getting acces token
+    :param form_data: Form data
+    :param db: Sqlalchemy Session
+    :return: dict of access_token
+    """
     user = db.query(models.User).filter(models.User.username == form_data.username).first()
     if user is None or not user.verify_password(form_data.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, headers={"WWW-Authenticate": "Bearer"})

@@ -1,3 +1,6 @@
+"""
+Utility or helper for our app
+"""
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
@@ -18,6 +21,12 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def generate_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+    """
+    Generate access token for user
+    :param data:
+    :param expires_delta: expires time in minutes
+    :return: encoded jwt token
+    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -29,6 +38,12 @@ def generate_access_token(data: dict, expires_delta: Optional[timedelta] = None)
 
 
 async def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
+    """
+    Get current user based on token
+    :param db:  Sqlalchemy Session
+    :param token: str token
+    :return: User models
+    """
     credential_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credential",
@@ -53,6 +68,11 @@ async def get_current_user(db: Session = Depends(get_db), token: str = Depends(o
 
 
 async def get_current_active_user(current_user: User = Depends(get_current_user)):
+    """
+    Get current user status
+    :param current_user: User Models
+    :return: HTTP Bad Request or User Models
+    """
     if not current_user.is_active:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Inactive User")
     return current_user

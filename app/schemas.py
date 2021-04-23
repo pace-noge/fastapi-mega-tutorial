@@ -1,3 +1,8 @@
+"""
+Schema for request and response.
+You can threat this file like serializers.py when using django rest
+"""
+
 from typing import List, Optional
 from pydantic import BaseModel
 
@@ -12,7 +17,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     """
-    When create new user password must be supplied.
+    When create new user, password must be supplied.
     """
     password: str
 
