@@ -1,4 +1,7 @@
 from pydantic import BaseModel
+from typing import List
+from app.post.schemas import Post
+
 
 class UserBase(BaseModel):
     """
@@ -19,13 +22,13 @@ class UserCreate(UserBase):
     password1: str
 
 
-
 class User(UserBase):
     """
     When display or get the user we need to include the id
     but without password
     """
     id: int
+    posts: List[Post] = []
 
 
 class ChangePassword(BaseModel):
@@ -34,3 +37,8 @@ class ChangePassword(BaseModel):
     """
     current_password: str
     new_password: str
+
+
+class UserRequest(UserBase):
+    id: int
+

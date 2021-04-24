@@ -13,7 +13,9 @@ class PostBase(BaseModel):
     """
     body: str
     timestamp: str
-    author: str
+
+    class Config:
+        orm_mode = True
 
 
 class PostCreate(BaseModel):
@@ -23,3 +25,10 @@ class PostCreate(BaseModel):
     """
     pass
 
+
+class Post(PostBase):
+    """
+    this is for post representation
+    """
+    id:  int
+    author_id: int

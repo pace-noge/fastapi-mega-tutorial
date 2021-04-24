@@ -16,7 +16,7 @@ class User(Base):
     email = Column(String(120), index=True, unique=True)
     password_hash = Column(String(128))
     is_active = Column(Boolean, default=False)
-    posts = relationship(Post, backref='author', lazy='dynamic')
+    posts = relationship('Post', back_populates='author')
 
     def set_password(self, password):
         self.password_hash = pwd_context.hash(password)
