@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from fastapi import HTTPException, status
 from . import schemas
 from . import models
 
@@ -12,6 +13,8 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 
 
 def create_user(db: Session, data: schemas.UserCreate):
+    if data.password != data.password1:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password not same")
     user = models.User(username=data.username, email=data.email)
     user.set_password(data.password)
     db.add(user)

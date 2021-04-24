@@ -6,7 +6,8 @@ from typing import List
 from .models import User as UserModel
 from .schemas import User as UserSchema, UserCreate, UserBase, ChangePassword
 from . import crud
-from core.utils import get_db, get_current_user
+from core.utils import get_db
+from core.security import get_current_user
 
 router = fastapi.APIRouter()
 
@@ -26,7 +27,7 @@ async def create_user(user: UserCreate, db: Session = fastapi.Depends(get_db)):
 
 
 @router.get("/", response_model=List[UserSchema], status_code=fastapi.status.HTTP_200_OK)
-async def user_list(db: Session = fastapi.Depends(get_db), skip: int = 0, limit: int = 0, current_user: UserModel = fastapi.Depends(get_current_user)):
+async def user_list(db: Session = fastapi.Depends(get_db), skip: int = 0, limit: int = 100, current_user: UserModel = fastapi.Depends(get_current_user)):
     """
     GET list of user
     :param current_user: current user based on token
@@ -43,7 +44,7 @@ async def user_list(db: Session = fastapi.Depends(get_db), skip: int = 0, limit:
 
 
 @router.get("/{user_id}/", response_model=UserSchema, status_code=fastapi.status.HTTP_200_OK)
-async def user_detail(user_id: int, db: Session = fastapi.Depends(get_db)):
+async def user_detail(user_id: int, db: Session = fastapi.Depends(get_db), current_user: UserModel = fastapi.Depends(get_current_user)):
     """
     Get User detail
     :param user_id: int user id
@@ -57,7 +58,9 @@ async def user_detail(user_id: int, db: Session = fastapi.Depends(get_db)):
 
 
 @router.put("/{user_id}/", response_model=UserSchema, status_code=fastapi.status.HTTP_202_ACCEPTED)
-async def update_user(user_id: int, user: UserBase, db: Session = fastapi.Depends(get_db)):
+async def update_user(
+        user_id: int, user: UserBase, db: Session = fastapi.Depends(get_db),
+        current_user: UserModel = fastapi.Depends(get_current_user)):
     """
     Update user detail
     :param user_id: int user id in url parameter
@@ -65,7 +68,6 @@ async def update_user(user_id: int, user: UserBase, db: Session = fastapi.Depend
     :param db:
     :return:
     """
-    current_user = crud.get_user(db, user_id)
     if not current_user:
         raise fastapi.HTTPException(status_code=fastapi.status.HTTP_404_NOT_FOUND, detail="User not found.")
     updated_user = crud.update_user(db, user)
@@ -73,7 +75,9 @@ async def update_user(user_id: int, user: UserBase, db: Session = fastapi.Depend
 
 
 @router.post("/{user_id}/reset-password/", status_code=fastapi.status.HTTP_200_OK)
-async def change_password(user_id: int, data: ChangePassword, db: Session = fastapi.Depends(get_db)):
+async def change_password(
+        user_id: int, data: ChangePassword, db: Session = fastapi.Depends(get_db),
+        current_user: UserModel = fastapi.Depends(get_current_user)):
     """
     Update password for user
     :param user_id: int user id
@@ -81,9 +85,12 @@ async def change_password(user_id: int, data: ChangePassword, db: Session = fast
     :param db: Session
     :return: dict
     """
-    current_user = crud.get_user(db, user_id)
     if not current_user:
         raise fastapi.HTTPException(status_code=fastapi.status.HTTP_404_NOT_FOUND, detail=f"User not found.")
+    if current_user.id != user_id:
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_403_FORBIDDEN, detail=f"only user can change their own password."
+        )
     password_changed = crud.update_password(db, current_user, data)
     if password_changed:
         return {"message": "password updated"}

@@ -16,6 +16,7 @@ class UserCreate(UserBase):
     When create new user, password must be supplied.
     """
     password: str
+    password1: str
 
 
 
