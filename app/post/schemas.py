@@ -12,13 +12,12 @@ class PostBase(BaseModel):
     BaseModel for Posts
     """
     body: str
-    timestamp: str
 
     class Config:
         orm_mode = True
 
 
-class PostCreate(BaseModel):
+class PostCreate(PostBase):
     """
     Not much change from BaseModel
     But for sake readibility we add PostCreate
